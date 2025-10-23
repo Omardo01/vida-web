@@ -50,11 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string) => {
+    // Obtener la URL base, priorizando variable de entorno si existe
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${baseUrl}/auth/callback`,
       },
     })
     return { error }
