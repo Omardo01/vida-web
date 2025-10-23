@@ -21,7 +21,7 @@ export function AnimatedGradientText({
     <span
       style={
         {
-          "--bg-size": `${speed * 300}%`,
+          "--bg-size": `${speed * 100}%`,
           "--color-from": colorFrom,
           "--color-to": colorTo,
         } as React.CSSProperties

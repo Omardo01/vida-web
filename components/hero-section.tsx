@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { TextAnimate } from "@/components/ui/text-animate"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
+import { WordRotate } from "@/components/ui/word-rotate"
 import { motion } from "motion/react"
 import Link from "next/link"
 
@@ -16,18 +17,20 @@ export function HeroSection() {
       <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
         <div className="max-w-4xl mx-auto text-center text-white">
           {/* Título principal con animación */}
-          <TextAnimate
-            animation="blurInUp"
-            by="word"
+          <WordRotate
+            words={[
+              "#UnaIglesíaEnCadaCasa",
+              "#HaciendoLideres",
+              "#CambiandoLaCultura"
+            ]}
+            duration={3000}
             className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 text-balance leading-tight"
-          >
-            #UnaIglesíaEnCadaCasa
-          </TextAnimate>
+          />
           
           <AnimatedGradientText
             colorFrom="#000000"
-            colorTo="#7BCDF5"
-            speed={0.8}
+            colorTo="#456E7A"
+            speed={1.5}
             className="block text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mt-2"
           >
             VidaSCMX
