@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+// Forzar renderizado dinámico (esta ruta usa cookies)
+export const dynamic = 'force-dynamic'
+
 // GET - Obtener roles de un usuario
 export async function GET(request: Request) {
   try {

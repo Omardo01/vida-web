@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+// Forzar renderizado dinámico (esta ruta usa cookies)
+export const dynamic = 'force-dynamic'
+
 // GET - Listar todos los roles
 export async function GET() {
   try {
