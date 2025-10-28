@@ -47,27 +47,22 @@ export function HeroSection() {
           </TextAnimate>
 
           {/* Botones de acción */}
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-4">
-            <Button 
-              size="lg" 
-              className="bg-white text-primary hover:bg-white/90 text-sm md:text-base lg:text-lg px-6 md:px-8 py-5 md:py-6 h-auto"
-            >
-              Conoce Más
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary text-sm md:text-base lg:text-lg px-6 md:px-8 py-5 md:py-6 h-auto bg-transparent"
-            >
-              Únete a Nosotros
-            </Button>
-            <Link href="/construyendo" className="w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center mb-12 md:mb-16 px-4">
+            <Link href="/nosotros" className="inline-block">
+              <Button 
+                size="lg" 
+                className="bg-white text-primary hover:bg-white/90 text-base md:text-lg lg:text-xl px-8 md:px-12 py-6 md:py-7 h-auto shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer w-full sm:w-auto font-bold border-2 border-transparent"
+              >
+                Conoce Más
+              </Button>
+            </Link>
+            <Link href="/contacto" className="inline-block">
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full border-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-primary text-sm md:text-base lg:text-lg px-6 md:px-8 py-5 md:py-6 h-auto bg-transparent"
+                className="border-2 border-white text-white hover:bg-white hover:text-primary text-base md:text-lg lg:text-xl px-8 md:px-12 py-6 md:py-7 h-auto bg-transparent shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer w-full sm:w-auto font-bold"
               >
-                Construyendo
+                Contáctanos
               </Button>
             </Link>
           </div>

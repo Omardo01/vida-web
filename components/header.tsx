@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { RainbowButtonSimple } from "@/components/ui/rainbow-button-simple"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -16,10 +17,10 @@ export function Header() {
   const { hasAdminAccess, loading: rolesLoading } = useUserRoles()
 
   const navigationLinks = [
-    { href: "#inicio", label: "Inicio" },
-    { href: "#nosotros", label: "Nosotros" },
+    { href: "/", label: "Inicio" },
+    { href: "/nosotros", label: "Nosotros" },
     { href: "#blog", label: "Blog" },
-    { href: "#contacto", label: "Contacto" },
+    { href: "/contacto", label: "Contacto" },
   ]
 
   return (
@@ -27,30 +28,40 @@ export function Header() {
       <header className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
-          <div className="flex items-center space-x-2 min-w-0">
+          <Link href="/" className="flex items-center space-x-2 min-w-0 hover:opacity-80 transition-opacity">
             <Image 
               src="/images/logo-corto.png" 
-              alt="Vida SC Logo" 
+              alt="Vida SCMX Logo" 
               width={80} 
               height={40} 
               className="h-8 w-auto md:h-10 object-contain flex-shrink-0" 
             />
             <div className="min-w-0">
-              <h1 className="font-bold text-base md:text-xl text-foreground truncate">VIDA SC</h1>
+              <h1 className="font-bold text-base md:text-xl text-foreground truncate">VIDA SCMX</h1>
               <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">Alcanzar • Edificar • Multiplicar</p>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             {navigationLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                {link.label}
-              </a>
+              link.href.startsWith('#') ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -110,14 +121,25 @@ export function Header() {
               <SheetContent side="right" className="w-[280px] sm:w-[350px]">
                 <nav className="flex flex-col space-y-4 mt-8">
                   {navigationLinks.map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-lg font-medium text-foreground hover:text-primary transition-colors py-2 px-4 rounded-lg hover:bg-primary/5"
-                    >
-                      {link.label}
-                    </a>
+                    link.href.startsWith('#') ? (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-lg font-medium text-foreground hover:text-primary transition-colors py-2 px-4 rounded-lg hover:bg-primary/5"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-lg font-medium text-foreground hover:text-primary transition-colors py-2 px-4 rounded-lg hover:bg-primary/5"
+                      >
+                        {link.label}
+                      </Link>
+                    )
                   ))}
                   {user && (
                     <div className="pt-4 border-t border-border">

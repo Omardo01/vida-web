@@ -8,15 +8,8 @@ export function Footer() {
           {/* Logo y descripción */}
           <div className="sm:col-span-2 lg:col-span-2">
             <div className="flex items-center space-x-2 md:space-x-3 mb-4">
-              <Image
-                src="/images/vida-sc-logo.png"
-                alt="Vida SC Logo"
-                width={40}
-                height={40}
-                className="h-8 w-8 md:h-10 md:w-10 brightness-0 invert"
-              />
               <div>
-                <h3 className="font-bold text-lg md:text-xl">VIDA SC</h3>
+                <h3 className="font-bold text-lg md:text-xl">VIDA SCMX</h3>
                 <p className="text-xs md:text-sm text-primary-foreground/80">Alcanzar • Edificar • Multiplicar</p>
               </div>
             </div>
@@ -32,16 +25,16 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="#inicio"
-                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  href="/"
+                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-all hover:underline hover:translate-x-1 inline-block cursor-pointer"
                 >
                   Inicio
                 </a>
               </li>
               <li>
                 <a
-                  href="#nosotros"
-                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  href="/nosotros"
+                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-all hover:underline hover:translate-x-1 inline-block cursor-pointer"
                 >
                   Nosotros
                 </a>
@@ -49,15 +42,15 @@ export function Footer() {
               <li>
                 <a 
                   href="#blog" 
-                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-all hover:underline hover:translate-x-1 inline-block cursor-pointer"
                 >
                   Blog
                 </a>
               </li>
               <li>
                 <a
-                  href="#contacto"
-                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  href="/contacto"
+                  className="text-sm md:text-base text-primary-foreground/80 hover:text-primary-foreground transition-all hover:underline hover:translate-x-1 inline-block cursor-pointer"
                 >
                   Contacto
                 </a>
@@ -71,11 +64,11 @@ export function Footer() {
             <div className="space-y-2 text-sm md:text-base text-primary-foreground/80">
               <p className="flex items-start gap-2">
                 <span>📍</span>
-                <span>Calle Principal 123, Ciudad</span>
+                <span>AVENIDA CENTRAL #153 COL.  SAN JOAQUN CP. 24157</span>
+                <span> CIUDAD DEL CARMEN, CAMPECHE</span>
               </p>
               <p>📞 +1 (555) 123-4567</p>
-              <p>✉️ info@vidasc.org</p>
-              <p>🕐 Dom 9:00 AM - 12:00 PM</p>
+              <p>✉️ info@vidasc.mx</p>
             </div>
           </div>
         </div>
@@ -83,7 +76,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="border-t border-primary-foreground/20 pt-6 md:pt-8 text-center">
           <p className="text-xs md:text-sm text-primary-foreground/60">
-            © 2025 Vida SC. Todos los derechos reservados. Hecho con ❤️ para la gloria de Dios.
+            © 2025 Vida SCMX. Todos los derechos reservados. Hecho con ❤️ para la gloria de Dios.
           </p>
         </div>
       </div>
