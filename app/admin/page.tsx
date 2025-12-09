@@ -15,10 +15,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Users, UserPlus, Mail, Calendar, TrendingUp, Shield } from "lucide-react"
+import { ArrowLeft, Users, UserPlus, Mail, Calendar, TrendingUp, Shield, FileText } from "lucide-react"
 import Link from "next/link"
 import { RoleManager } from "@/components/admin/role-manager"
 import { UserRoleAssignment } from "@/components/admin/user-role-assignment"
+import { BlogManager } from "@/components/admin/blog-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface UserRole {
@@ -239,8 +240,12 @@ export default function AdminPage() {
           <div className="space-y-6">
             {/* Tabs para diferentes secciones */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsList className="grid w-full max-w-lg grid-cols-3">
                 <TabsTrigger value="overview">Resumen</TabsTrigger>
+                <TabsTrigger value="blog" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Blog
+                </TabsTrigger>
                 <TabsTrigger value="roles">Roles</TabsTrigger>
               </TabsList>
 
@@ -384,6 +389,10 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+              </TabsContent>
+
+              <TabsContent value="blog">
+                <BlogManager />
               </TabsContent>
 
               <TabsContent value="roles">

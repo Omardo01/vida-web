@@ -1,68 +1,166 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { TextAnimate } from "@/components/ui/text-animate"
+import {
+  FileText,
+  Mic,
+  BookOpen,
+  Heart,
+  Lightbulb,
+  Bell,
+  Newspaper,
+  BookMarked,
+  MessageSquare,
+  Music,
+  Video,
+  Users,
+  Calendar,
+  Star,
+  ArrowRight,
+  ExternalLink,
+} from "lucide-react"
+import Link from "next/link"
 
-const blogPosts = [
-  {
-    id: 1,
-    title: "Ejemplo número 1 de Blog",
-    excerpt: "Este es un ejemplo de contenido para el blog número 1. Aquí se mostrará una breve descripción del tema a tratar.",
-    date: "15 de Enero, 2025",
-    category: "General",
-    image: "/placeholder.svg",
-    author: "Autor Ejemplo",
-  },
-  {
-    id: 2,
-    title: "Ejemplo número 2 de Blog",
-    excerpt: "Este es un ejemplo de contenido para el blog número 2. Aquí se mostrará una breve descripción del tema a tratar.",
-    date: "12 de Enero, 2025",
-    category: "General",
-    image: "/placeholder.svg",
-    author: "Autor Ejemplo",
-  },
-  {
-    id: 3,
-    title: "Ejemplo número 3 de Blog",
-    excerpt: "Este es un ejemplo de contenido para el blog número 3. Aquí se mostrará una breve descripción del tema a tratar.",
-    date: "10 de Enero, 2025",
-    category: "General",
-    image: "/placeholder.svg",
-    author: "Autor Ejemplo",
-  },
-  {
-    id: 4,
-    title: "Ejemplo número 4 de Blog",
-    excerpt: "Este es un ejemplo de contenido para el blog número 4. Aquí se mostrará una breve descripción del tema a tratar.",
-    date: "8 de Enero, 2025",
-    category: "General",
-    image: "/placeholder.svg",
-    author: "Autor Ejemplo",
-  },
-  {
-    id: 5,
-    title: "Ejemplo número 5 de Blog",
-    excerpt: "Este es un ejemplo de contenido para el blog número 5. Aquí se mostrará una breve descripción del tema a tratar.",
-    date: "5 de Enero, 2025",
-    category: "General",
-    image: "/placeholder.svg",
-    author: "Autor Ejemplo",
-  },
-  {
-    id: 6,
-    title: "Ejemplo número 6 de Blog",
-    excerpt: "Este es un ejemplo de contenido para el blog número 6. Aquí se mostrará una breve descripción del tema a tratar.",
-    date: "3 de Enero, 2025",
-    category: "General",
-    image: "/placeholder.svg",
-    author: "Autor Ejemplo",
-  },
-]
+// Mapa de iconos para renderizar dinámicamente
+const ICON_MAP: Record<string, any> = {
+  FileText,
+  Mic,
+  BookOpen,
+  BookMarked,
+  Heart,
+  Lightbulb,
+  Bell,
+  Newspaper,
+  MessageSquare,
+  Music,
+  Video,
+  Users,
+  Calendar,
+  Star,
+}
+
+interface BlogPost {
+  id: string
+  titulo: string
+  slug: string
+  resumen: string
+  contenido: string
+  fecha_publicacion: string | null
+  created_at: string
+  vistas: number
+  categoria: {
+    id: string
+    nombre: string
+    slug: string
+    color: string
+    icono: string
+  } | null
+}
 
 export function BlogSection() {
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const response = await fetch('/api/blog?limit=6')
+        if (response.ok) {
+          const { posts: fetchedPosts } = await response.json()
+          setPosts(fetchedPosts || [])
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [])
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    return date.toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
+
+  const getIconComponent = (iconName: string | null | undefined) => {
+    if (!iconName || !ICON_MAP[iconName]) return FileText
+    return ICON_MAP[iconName]
+  }
+
+  // Skeleton de carga
+  if (loading) {
+    return (
+      <section id="blog" className="py-12 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10 md:mb-16">
+            <Skeleton className="h-12 w-80 mx-auto mb-4" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="aspect-[4/3] w-full" />
+                <div className="p-4 md:p-6 space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Sin posts
+  if (posts.length === 0) {
+    return (
+      <section id="blog" className="py-12 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10 md:mb-16">
+            <TextAnimate
+              animation="blurInUp"
+              by="word"
+              as="h2"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-4 text-balance"
+            >
+              Reflexiones y Enseñanzas
+            </TextAnimate>
+            <TextAnimate
+              animation="fadeIn"
+              by="word"
+              delay={0.3}
+              as="p"
+              className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty px-4"
+            >
+              Comparte nuestro caminar de fe a través de reflexiones, enseñanzas y testimonios que edifican y fortalecen nuestra comunidad
+            </TextAnimate>
+          </div>
+          
+          <Card className="max-w-md mx-auto text-center p-8">
+            <FileText className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+            <p className="text-muted-foreground">
+              Próximamente tendremos contenido para ti.
+            </p>
+          </Card>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="blog" className="py-12 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -83,59 +181,120 @@ export function BlogSection() {
             as="p"
             className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty px-4"
           >
-            Comparte nuestro caminar de fe a través de reflexiones enseñanzas y testimonios que edifican y fortalecen nuestra comunidad
+            Comparte nuestro caminar de fe a través de reflexiones, enseñanzas y testimonios que edifican y fortalecen nuestra comunidad
           </TextAnimate>
         </div>
 
-        {/* Grid de posts */}
+        {/* Grid de posts - Estilo tarjeta con icono */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-10 md:mb-12">
-          {blogPosts.map((post) => (
-            <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
-              <div className="aspect-video overflow-hidden">
-                <img
-                  src={post.image || "/placeholder.svg"}
-                  alt={post.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <CardHeader className="pb-3 p-4 md:p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
-                    {post.category}
-                  </Badge>
-                  <span className="text-xs md:text-sm text-muted-foreground">{post.date}</span>
+          {posts.map((post) => {
+            const CategoryIcon = getIconComponent(post.categoria?.icono)
+            const categoryColor = post.categoria?.color || "#3B82F6"
+
+            return (
+              <Card 
+                key={post.id} 
+                className="group relative overflow-hidden hover:shadow-xl transition-all duration-500 border-0 bg-card"
+              >
+                {/* Header con icono de categoría - Estilo similar a la imagen */}
+                <div 
+                  className="relative aspect-[4/3] overflow-hidden"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${categoryColor}15 0%, ${categoryColor}05 100%)` 
+                  }}
+                >
+                  {/* Patrón decorativo de fondo */}
+                  <div className="absolute inset-0 opacity-[0.03]">
+                    <div 
+                      className="absolute inset-0"
+                      style={{
+                        backgroundImage: `radial-gradient(${categoryColor} 1px, transparent 1px)`,
+                        backgroundSize: '20px 20px'
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Icono central grande */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div 
+                      className="p-6 rounded-2xl transition-transform duration-500 group-hover:scale-110"
+                      style={{ backgroundColor: categoryColor + "20" }}
+                    >
+                      <CategoryIcon 
+                        className="h-16 w-16 md:h-20 md:w-20 transition-all duration-500" 
+                        style={{ color: categoryColor }}
+                        strokeWidth={1.5}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Badge de categoría en esquina */}
+                  {post.categoria && (
+                    <div className="absolute top-4 left-4">
+                      <Badge 
+                        variant="secondary"
+                        className="backdrop-blur-sm font-medium shadow-sm"
+                        style={{
+                          backgroundColor: categoryColor + "90",
+                          color: "white",
+                        }}
+                      >
+                        {post.categoria.nombre}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Botón de flecha - Estilo de la imagen */}
+                  <div className="absolute bottom-4 right-4">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="rounded-full h-10 w-10 bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <CardTitle className="text-lg md:text-xl group-hover:text-primary transition-colors text-balance">
-                  {post.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 p-4 md:p-6 md:pt-0">
-                <p className="text-sm md:text-base text-muted-foreground mb-4 text-pretty leading-relaxed">
-                  {post.excerpt}
-                </p>
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <span className="text-xs md:text-sm font-medium text-primary">{post.author}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs md:text-sm text-primary hover:text-primary-foreground hover:bg-primary"
-                  >
-                    Leer más →
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                {/* Contenido */}
+                <CardContent className="p-5 md:p-6 space-y-3">
+                  <h3 className="text-lg md:text-xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                    {post.titulo}
+                  </h3>
+                  
+                  <p className="text-sm md:text-base text-muted-foreground line-clamp-2 leading-relaxed">
+                    {post.resumen}
+                  </p>
+
+                  {/* Footer con fecha */}
+                  <div className="pt-2 flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{formatDate(post.fecha_publicacion || post.created_at)}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary hover:text-primary-foreground hover:bg-primary gap-1 -mr-2"
+                    >
+                      Leer más
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
 
         {/* Botón para ver todos */}
         <div className="text-center">
-          <Button 
-            size="lg" 
-            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto px-8 py-5 md:py-6 text-sm md:text-base"
-          >
-            Ver Todos los Posts
-          </Button>
+          <Link href="/blog">
+            <Button 
+              size="lg" 
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto px-8 py-5 md:py-6 text-sm md:text-base gap-2"
+            >
+              Ver Todos los Posts
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

@@ -19,7 +19,7 @@ export function Header() {
   const navigationLinks = [
     { href: "/", label: "Inicio" },
     { href: "/nosotros", label: "Nosotros" },
-    { href: "#blog", label: "Blog" },
+    { href: "/blog", label: "Blog" },
     { href: "/contacto", label: "Contacto" },
   ]
 
