@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Vida SC - Alcanzar • Edificar • Multiplicar",
+  title: "Vida SCMX - Alcanzar • Edificar • Multiplicar",
   description: "Somos una institución comprometida con la enseñanza de la palabra de Dios. Amamos compartir la fe y así transformar el entorno.",
   keywords: ["Vida", "SC", "Alcanzar", "Edificar", "Multiplicar"],
   icons: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     shortcut: "/images/vida-fav.png",
   },
   openGraph: {
-    title: "Vida SC - Alcanzar • Edificar • Multiplicar",
+    title: "Vida SCMX - Alcanzar • Edificar • Multiplicar",
     description: "Somos una institución comprometida con la enseñanza de la palabra de Dios. Amamos compartir la fe y así transformar el entorno.",
     images: ["/images/vida-sc-logo.png"],
   },

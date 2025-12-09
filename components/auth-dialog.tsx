@@ -101,7 +101,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <div className="mb-6">
             <Image 
               src="/images/vida-sc-logo.png" 
-              alt="Vida SC Logo" 
+              alt="Vida SCMX Logo" 
               width={60} 
               height={60} 
               className="h-15 w-auto"

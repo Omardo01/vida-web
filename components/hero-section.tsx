@@ -20,8 +20,8 @@ export function HeroSection() {
           <WordRotate
             words={[
               "#UnaIglesíaEnCadaCasa",
-              "#HaciendoLideres",
-              "#CambiandoLaCultura"
+              "#FormandoLideres",
+              "TransformandoLaCultura"
             ]}
             duration={3000}
             className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 text-balance leading-tight"
@@ -43,7 +43,7 @@ export function HeroSection() {
             delay={0.3}
             className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 md:mb-10 text-primary-foreground/90 text-pretty max-w-2xl mx-auto leading-relaxed px-4 mt-6"
           >
-            Somos una institución comprometida con la enseñanza de la palabra de Dios. Amamos compartir la fe y así transformar el entorno.
+            Enseñamos la palabra de Dios y compartimos la fe bíblica para ser agentes de trasnformación cultural con un impacto tangible en nuestra comunidad.
           </TextAnimate>
 
           {/* Botones de acción */}

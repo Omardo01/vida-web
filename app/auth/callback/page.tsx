@@ -42,7 +42,7 @@ export default function AuthCallbackPage() {
           <div className="flex justify-center mb-6">
             <Image 
               src="/images/vida-sc-logo.png" 
-              alt="Vida SC Logo" 
+              alt="Vida SCMX Logo" 
               width={80} 
               height={80} 
               className="h-20 w-auto"
