@@ -14,7 +14,7 @@ export function Header() {
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, signOut, loading } = useAuth()
-  const { hasAdminAccess, loading: rolesLoading } = useUserRoles()
+  const { hasAdminAccess, hasDashboardAccess, loading: rolesLoading } = useUserRoles()
 
   const navigationLinks = [
     { href: "/", label: "Inicio" },
@@ -108,6 +108,21 @@ export function Header() {
               <>
                 {user ? (
                   <div className="flex items-center gap-2">
+                    {hasDashboardAccess && !rolesLoading && (
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="text-xs md:text-sm hidden sm:flex"
+                      >
+                        <Link href="/dashboard">
+                          <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                          </svg>
+                          Mi Panel
+                        </Link>
+                      </Button>
+                    )}
                     {hasAdminAccess && !rolesLoading && (
                       <Button
                         asChild
@@ -115,12 +130,12 @@ export function Header() {
                         size="sm"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs md:text-sm hidden sm:flex"
                       >
-                        <a href="/admin">
+                        <Link href="/admin">
                           <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
                           Admin
-                        </a>
+                        </Link>
                       </Button>
                     )}
                     <span className="text-xs md:text-sm text-foreground hidden xl:block max-w-[150px] truncate">
@@ -224,18 +239,32 @@ export function Header() {
                       <p className="text-sm text-muted-foreground px-4 mb-2">Sesión</p>
                       <p className="text-sm font-medium px-4 mb-4 break-all">{user.email}</p>
                       <div className="space-y-2">
+                        {hasDashboardAccess && !rolesLoading && (
+                          <Button
+                            asChild
+                            variant="outline"
+                            className="w-full"
+                          >
+                            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                              <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                              </svg>
+                              Mi Panel
+                            </Link>
+                          </Button>
+                        )}
                         {hasAdminAccess && !rolesLoading && (
                           <Button
                             asChild
                             variant="default"
                             className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                           >
-                            <a href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                            <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
                               <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                               </svg>
                               Panel de Administración
-                            </a>
+                            </Link>
                           </Button>
                         )}
                         <Button

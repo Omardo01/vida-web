@@ -15,11 +15,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Users, UserPlus, Mail, Calendar, TrendingUp, Shield, FileText } from "lucide-react"
+import { ArrowLeft, Users, UserPlus, Mail, Calendar, TrendingUp, Shield, FileText, CalendarDays } from "lucide-react"
 import Link from "next/link"
 import { RoleManager } from "@/components/admin/role-manager"
 import { UserRoleAssignment } from "@/components/admin/user-role-assignment"
 import { BlogManager } from "@/components/admin/blog-manager"
+import { EventManager } from "@/components/admin/event-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface UserRole {
@@ -240,8 +241,12 @@ export default function AdminPage() {
           <div className="space-y-6">
             {/* Tabs para diferentes secciones */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full max-w-lg grid-cols-3">
+              <TabsList className="grid w-full max-w-2xl grid-cols-4">
                 <TabsTrigger value="overview">Resumen</TabsTrigger>
+                <TabsTrigger value="events" className="gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  Eventos
+                </TabsTrigger>
                 <TabsTrigger value="blog" className="gap-2">
                   <FileText className="h-4 w-4" />
                   Blog
@@ -389,6 +394,10 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+              </TabsContent>
+
+              <TabsContent value="events">
+                <EventManager />
               </TabsContent>
 
               <TabsContent value="blog">
