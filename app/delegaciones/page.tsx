@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, Clock, Phone, Mail, Facebook, Instagram, Youtube, MessageCircle, ArrowRight } from "lucide-react"
+import { Clock, Phone, Mail, ArrowRight, MessageCircle, MapPin } from "lucide-react"
 import Link from "next/link"
 import { motion } from "motion/react"
 import { Header } from "@/components/header"
@@ -71,34 +71,30 @@ export default function DelegacionesPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10">
         {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b">
-        <div className="absolute inset-0 bg-grid-white/10" />
-        <div className="container mx-auto px-4 py-16 md:py-24 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <Badge className="mb-4" variant="outline">
-              <MapPin className="h-3 w-3 mr-1" />
-              Nuestras Delegaciones
-            </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Encuéntranos Cerca de Ti
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
-              Contamos con múltiples delegaciones para servirte mejor. 
-              Encuentra la más cercana a tu ubicación y únete a nuestra comunidad.
-            </p>
-          </motion.div>
-        </div>
-      </div>
+        <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary via-secondary to-accent">
+          <div className="absolute inset-0 bg-[url('/images/fondo.jpg')] bg-cover bg-center bg-no-repeat opacity-15"></div>
+          <div className="container mx-auto px-4 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center text-white"
+            >
+              <h1 className="text-5xl md:text-7xl font-bold mb-6">
+                Delegaciones
+              </h1>
+              <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+                Encuentra la delegación más cercana a ti y únete a nuestra comunidad
+              </p>
+            </motion.div>
+          </div>
+        </section>
 
-      {/* Delegaciones Grid */}
-      <div className="container mx-auto px-4 py-12">
+        {/* Delegaciones Grid */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
@@ -223,27 +219,28 @@ export default function DelegacionesPage() {
             ))}
           </motion.div>
         )}
-      </div>
+          </div>
+        </section>
 
-      {/* CTA Section */}
-      <div className="border-t bg-muted/30">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              ¿No encuentras una delegación cerca de ti?
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Contáctanos y te ayudaremos a encontrar la mejor opción para ti
-            </p>
-            <Link href="/contacto">
-              <Button size="lg" className="gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Contáctanos
-              </Button>
-            </Link>
+          {/* CTA Section */}
+        <div className="border-t bg-muted/30">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                ¿No encuentras una delegación cerca de ti?
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Contáctanos y te ayudaremos a encontrar la mejor opción para ti
+              </p>
+              <Link href="/contacto">
+                <Button size="lg" className="gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Contáctanos
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
       </div>
       <Footer />
     </>

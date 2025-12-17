@@ -227,7 +227,7 @@ export function ResumenSection() {
                   </div>
                   <h3 className="font-bold text-lg text-yellow-700">Áreas de Influencia</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-1 text-sm">
+                <div className="grid grid-cols-2 gap-1 text-base font-medium">
                   <span className="bg-white/50 px-2 py-1 rounded text-center">👨‍👩‍👧 Familia</span>
                   <span className="bg-white/50 px-2 py-1 rounded text-center">⛪ Iglesia</span>
                   <span className="bg-white/50 px-2 py-1 rounded text-center">📚 Educación</span>

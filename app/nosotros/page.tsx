@@ -703,8 +703,8 @@ export default function NosotrosPage() {
                     <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border-l-4 border-blue-500">
                       <span className="text-2xl flex-shrink-0 mt-1">🏠</span>
                       <div className="flex-1">
-                        <p className="text-sm font-bold text-blue-700 mb-1">{item.ref} - {item.title}</p>
-                        <p className="text-xs text-muted-foreground italic leading-relaxed">&quot;{item.verse}&quot;</p>
+                        <p className="text-base font-bold text-blue-700 mb-1">{item.ref} - {item.title}</p>
+                        <p className="text-sm text-muted-foreground italic leading-relaxed">&quot;{item.verse}&quot;</p>
                       </div>
                     </div>
                   </motion.div>
