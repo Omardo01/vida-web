@@ -16,9 +16,15 @@ export function Header() {
   const { user, signOut, loading } = useAuth()
   const { hasAdminAccess, hasDashboardAccess, loading: rolesLoading } = useUserRoles()
 
+  // Función para obtener solo el username del email
+  const getUserName = (email: string) => {
+    return email.split('@')[0]
+  }
+
   const navigationLinks = [
     { href: "/", label: "Inicio" },
     { href: "/nosotros", label: "Nosotros" },
+    { href: "/delegaciones", label: "Delegaciones" },
     { href: "/blog", label: "Blog" },
     { href: "/contacto", label: "Contacto" },
   ]
@@ -139,7 +145,7 @@ export function Header() {
                       </Button>
                     )}
                     <span className="text-xs md:text-sm text-foreground hidden xl:block max-w-[150px] truncate">
-                      {user.email}
+                      {user.email ? getUserName(user.email) : 'Usuario'}
                     </span>
                     <Button
                       onClick={() => signOut()}
@@ -237,7 +243,7 @@ export function Header() {
                   {user && (
                     <div className="pt-4 border-t border-border">
                       <p className="text-sm text-muted-foreground px-4 mb-2">Sesión</p>
-                      <p className="text-sm font-medium px-4 mb-4 break-all">{user.email}</p>
+                      <p className="text-sm font-medium px-4 mb-4 break-all">{user.email ? getUserName(user.email) : 'Usuario'}</p>
                       <div className="space-y-2">
                         {hasDashboardAccess && !rolesLoading && (
                           <Button
