@@ -21,6 +21,10 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { motion } from "motion/react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import remarkBreaks from "remark-breaks"
+import rehypeRaw from "rehype-raw"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
@@ -187,9 +191,21 @@ export default function DelegacionDetailPage() {
                   <CardTitle>Sobre Nosotros</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {delegacion.descripcion}
-                  </p>
+                  <div className="text-[17px] leading-[1.8] text-foreground/85">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm, remarkBreaks]} 
+                      rehypePlugins={[rehypeRaw]}
+                      components={{
+                      p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                      ul: ({ children }) => <ul className="list-disc pl-5 mb-4 space-y-1">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal pl-5 mb-4 space-y-1">{children}</ol>,
+                      a: ({ children, href }) => <a href={href} className="text-primary underline hover:opacity-80 transition-opacity" target="_blank" rel="noopener noreferrer">{children}</a>,
+                    }}>
+                      {delegacion.descripcion}
+                    </ReactMarkdown>
+                  </div>
                 </CardContent>
               </Card>
             )}

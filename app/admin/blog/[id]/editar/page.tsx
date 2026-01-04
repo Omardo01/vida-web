@@ -293,6 +293,7 @@ export default function EditarPostPage() {
                         <li>• Usa <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded"># Título</code> con espacio después del #</li>
                         <li>• Cada elemento de lista en su propia línea</li>
                         <li>• Deja una línea en blanco entre secciones</li>
+                        <li>• Usa <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">&lt;br /&gt;</code> para saltos de línea extra</li>
                       </ul>
                     </div>
                     <Textarea
@@ -442,6 +443,9 @@ export default function EditarPostPage() {
                     
                     <code className="bg-muted px-2 py-1 rounded">---</code>
                     <span className="text-muted-foreground">→ Separador</span>
+
+                    <code className="bg-muted px-2 py-1 rounded">&lt;br /&gt;</code>
+                    <span className="text-muted-foreground">→ Salto extra</span>
                   </div>
                 </CardContent>
               </Card>

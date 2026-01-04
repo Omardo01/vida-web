@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation"
 import { motion, useScroll, useSpring } from "motion/react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkBreaks from "remark-breaks"
+import rehypeRaw from "rehype-raw"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -241,7 +243,7 @@ export default function BlogPostPage() {
               Volver al blog
             </Link>
 
-            <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex items-center gap-4 md:gap-8">
               {/* Icono de categoría */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -250,14 +252,14 @@ export default function BlogPostPage() {
                 className="flex-shrink-0"
               >
                 <div 
-                  className="inline-flex p-5 md:p-6 rounded-2xl"
+                  className="inline-flex p-4 md:p-6 rounded-2xl"
                   style={{ 
                     backgroundColor: categoryColor + "15",
                     boxShadow: `0 10px 30px -10px ${categoryColor}25`
                   }}
                 >
                   <CategoryIcon 
-                    className="h-12 w-12 md:h-16 md:w-16" 
+                    className="h-10 w-10 md:h-16 md:w-16" 
                     style={{ color: categoryColor }}
                     strokeWidth={1.5}
                   />
@@ -350,27 +352,7 @@ export default function BlogPostPage() {
 
               {/* Contenido Markdown con estilos mejorados */}
               <div 
-                className="prose prose-lg dark:prose-invert max-w-none
-                  prose-headings:font-bold prose-headings:tracking-tight
-                  prose-h1:text-3xl prose-h1:md:text-4xl prose-h1:mt-12 prose-h1:mb-6
-                  prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-border
-                  prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mt-8 prose-h3:mb-3
-                  prose-p:text-foreground/85 prose-p:leading-[1.8] prose-p:mb-6 prose-p:text-[17px]
-                  prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-foreground prose-strong:font-semibold
-                  prose-em:italic
-                  prose-ul:my-6 prose-ul:space-y-2
-                  prose-ol:my-6 prose-ol:space-y-2
-                  prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:text-[17px]
-                  prose-blockquote:not-italic prose-blockquote:border-l-4 prose-blockquote:pl-6 prose-blockquote:py-1 prose-blockquote:my-8 prose-blockquote:rounded-r-lg
-                  prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
-                  prose-pre:bg-muted prose-pre:p-6 prose-pre:rounded-xl prose-pre:overflow-x-auto prose-pre:shadow-inner
-                  prose-hr:my-12 prose-hr:border-border
-                  prose-img:rounded-xl prose-img:shadow-lg
-                  prose-table:border-collapse prose-table:w-full prose-table:rounded-lg prose-table:overflow-hidden
-                  prose-th:border prose-th:border-border prose-th:p-4 prose-th:bg-muted prose-th:font-semibold
-                  prose-td:border prose-td:border-border prose-td:p-4
-                "
+                className="max-w-none"
                 style={{ 
                   '--tw-prose-headings': categoryColor,
                   '--tw-prose-links': categoryColor,
@@ -380,16 +362,22 @@ export default function BlogPostPage() {
                 } as React.CSSProperties}
               >
                 <ReactMarkdown 
-                  remarkPlugins={[remarkGfm]}
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
+                  rehypePlugins={[rehypeRaw]}
                   components={{
                     h1: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement> & { children?: React.ReactNode }) => (
-                      <h1 {...props} style={{ color: categoryColor }}>{children}</h1>
+                      <h1 {...props} className="text-3xl md:text-4xl font-bold mt-12 mb-6 tracking-tight" style={{ color: categoryColor }}>{children}</h1>
                     ),
                     h2: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement> & { children?: React.ReactNode }) => (
-                      <h2 {...props} style={{ color: categoryColor }}>{children}</h2>
+                      <h2 {...props} className="text-2xl md:text-3xl font-bold mt-10 mb-4 pb-2 border-b border-border tracking-tight" style={{ color: categoryColor }}>{children}</h2>
                     ),
                     h3: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement> & { children?: React.ReactNode }) => (
-                      <h3 {...props} style={{ color: categoryColor }}>{children}</h3>
+                      <h3 {...props} className="text-xl md:text-2xl font-bold mt-8 mb-3 tracking-tight" style={{ color: categoryColor }}>{children}</h3>
+                    ),
+                    p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement> & { children?: React.ReactNode }) => (
+                      <p {...props} className="text-[17px] md:text-lg leading-[1.8] text-foreground/85 mb-6 last:mb-0">
+                        {children}
+                      </p>
                     ),
                     blockquote: ({ children, ...props }: React.HTMLAttributes<HTMLQuoteElement> & { children?: React.ReactNode }) => (
                       <blockquote 
@@ -398,7 +386,7 @@ export default function BlogPostPage() {
                           borderColor: categoryColor,
                           backgroundColor: categoryColor + "08"
                         }}
-                        className="text-foreground/80"
+                        className="border-l-4 pl-6 py-2 my-8 rounded-r-lg italic text-foreground/80 text-lg"
                       >
                         {children}
                       </blockquote>
@@ -409,24 +397,30 @@ export default function BlogPostPage() {
                         target="_blank" 
                         rel="noopener noreferrer" 
                         {...props}
+                        className="font-medium underline decoration-2 underline-offset-4 hover:opacity-80 transition-opacity"
                         style={{ color: categoryColor }}
                       >
                         {children}
                       </a>
                     ),
                     ul: ({ children, ...props }: React.HTMLAttributes<HTMLUListElement> & { children?: React.ReactNode }) => (
-                      <ul {...props} className="list-none space-y-3">
+                      <ul {...props} className="my-6 space-y-3 list-none">
                         {children}
                       </ul>
                     ),
                     li: ({ children, ...props }: React.HTMLAttributes<HTMLLIElement> & { children?: React.ReactNode }) => (
-                      <li {...props} className="flex items-start gap-3">
+                      <li {...props} className="flex items-start gap-3 text-[17px] leading-relaxed text-foreground/85">
                         <span 
-                          className="mt-2 w-2 h-2 rounded-full flex-shrink-0"
+                          className="mt-2.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
                           style={{ backgroundColor: categoryColor }}
                         />
                         <span>{children}</span>
                       </li>
+                    ),
+                    ol: ({ children, ...props }: React.HTMLAttributes<HTMLOListElement> & { children?: React.ReactNode }) => (
+                      <ol {...props} className="my-6 space-y-3 list-decimal pl-6 text-[17px] leading-relaxed text-foreground/85">
+                        {children}
+                      </ol>
                     ),
                     hr: ({ ...props }) => (
                       <hr 
@@ -436,6 +430,28 @@ export default function BlogPostPage() {
                           background: `linear-gradient(to right, transparent, ${categoryColor}40, transparent)` 
                         }}
                       />
+                    ),
+                    img: ({ ...props }) => (
+                      <img 
+                        {...props} 
+                        className="rounded-2xl shadow-xl my-10 mx-auto max-w-full h-auto border border-border" 
+                        loading="lazy"
+                      />
+                    ),
+                    strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
+                    em: ({ children }) => <em className="italic opacity-90">{children}</em>,
+                    code: ({ inline, children, ...props }: any) => (
+                      inline ? (
+                        <code {...props} className="bg-muted px-1.5 py-0.5 rounded-md text-sm font-mono text-primary">
+                          {children}
+                        </code>
+                      ) : (
+                        <pre className="bg-muted p-4 rounded-xl overflow-x-auto my-6 border border-border shadow-inner">
+                          <code {...props} className="text-sm font-mono">
+                            {children}
+                          </code>
+                        </pre>
+                      )
                     ),
                   }}
                 >

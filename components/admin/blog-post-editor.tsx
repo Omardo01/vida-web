@@ -206,7 +206,7 @@ export function BlogPostEditor({
               required
             />
             <p className="text-xs text-muted-foreground">
-              Puedes usar saltos de línea para separar párrafos.
+              Puedes usar saltos de línea para separar párrafos. Usa <code className="bg-muted px-1 rounded">&lt;br /&gt;</code> para espacios extra.
             </p>
           </div>
 
