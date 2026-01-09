@@ -122,23 +122,25 @@ export default function ArchivosPage() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-3 md:p-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Mis Archivos</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mis Archivos</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Gestiona tus documentos y recursos personales
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 flex-1 md:flex-none">
             <FolderPlus className="h-4 w-4" />
-            Nueva Carpeta
+            <span className="hidden sm:inline">Nueva Carpeta</span>
+            <span className="sm:hidden">Carpeta</span>
           </Button>
-          <Button className="gap-2">
+          <Button className="gap-2 flex-1 md:flex-none">
             <Upload className="h-4 w-4" />
-            Subir Archivo
+            <span className="hidden sm:inline">Subir Archivo</span>
+            <span className="sm:hidden">Subir</span>
           </Button>
         </div>
       </div>
@@ -146,7 +148,7 @@ export default function ArchivosPage() {
       {/* Tabs de navegación */}
       <Tabs defaultValue="todos" className="space-y-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <TabsList>
+          <TabsList className="w-full justify-start overflow-x-auto">
             <TabsTrigger value="todos">Todos</TabsTrigger>
             <TabsTrigger value="documentos">Documentos</TabsTrigger>
             <TabsTrigger value="compartidos">Compartidos</TabsTrigger>

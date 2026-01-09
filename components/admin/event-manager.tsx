@@ -178,14 +178,30 @@ export function EventManager() {
     const startDate = new Date(event.start_date)
     const endDate = event.end_date ? new Date(event.end_date) : null
 
+    // Para el formulario, si es todo el día usamos la fecha tal cual (UTC)
+    // Si tiene hora, usamos la representación local para que el usuario vea lo que ingresó
+    const startDateString = event.all_day 
+      ? event.start_date.split("T")[0] 
+      : `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`
+    
+    const startTimeString = event.all_day ? "" : startDate.toTimeString().slice(0, 5)
+    
+    const endDateString = endDate 
+      ? (event.all_day 
+          ? event.end_date?.split("T")[0] 
+          : `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`)
+      : ""
+    
+    const endTimeString = endDate && !event.all_day ? endDate.toTimeString().slice(0, 5) : ""
+
     setFormData({
       title: event.title,
       description: event.description || "",
       location: event.location || "",
-      start_date: startDate.toISOString().split("T")[0],
-      start_time: event.all_day ? "" : startDate.toTimeString().slice(0, 5),
-      end_date: endDate ? endDate.toISOString().split("T")[0] : "",
-      end_time: endDate && !event.all_day ? endDate.toTimeString().slice(0, 5) : "",
+      start_date: startDateString || "",
+      start_time: startTimeString,
+      end_date: endDateString || "",
+      end_time: endTimeString,
       all_day: event.all_day,
       event_type: event.event_type,
       color: event.color,
@@ -207,20 +223,29 @@ export function EventManager() {
 
     try {
       // Construir fecha/hora de inicio
-      let startDateTime = formData.start_date
-      if (!formData.all_day && formData.start_time) {
-        startDateTime = `${formData.start_date}T${formData.start_time}:00`
+      let startDateTime: string
+      if (formData.all_day) {
+        // Para todo el día, forzamos medianoche UTC
+        startDateTime = `${formData.start_date}T00:00:00Z`
+      } else if (formData.start_time) {
+        // Con hora específica, interpretamos como hora local y convertimos a ISO (UTC)
+        const localDate = new Date(`${formData.start_date}T${formData.start_time}`)
+        startDateTime = localDate.toISOString()
       } else {
-        startDateTime = `${formData.start_date}T00:00:00`
+        // Sin hora pero no marcado como todo el día: tratamos como todo el día por defecto
+        startDateTime = `${formData.start_date}T00:00:00Z`
       }
 
       // Construir fecha/hora de fin
       let endDateTime = null
       if (formData.end_date) {
-        if (!formData.all_day && formData.end_time) {
-          endDateTime = `${formData.end_date}T${formData.end_time}:00`
+        if (formData.all_day) {
+          endDateTime = `${formData.end_date}T23:59:59Z`
+        } else if (formData.end_time) {
+          const localEndDate = new Date(`${formData.end_date}T${formData.end_time}`)
+          endDateTime = localEndDate.toISOString()
         } else {
-          endDateTime = `${formData.end_date}T23:59:59`
+          endDateTime = `${formData.end_date}T23:59:59Z`
         }
       }
 
@@ -282,8 +307,19 @@ export function EventManager() {
     }
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string, allDay: boolean = false) => {
     const date = new Date(dateString)
+    
+    // Si es todo el día, usamos UTC para evitar el desfase por zona horaria
+    if (allDay) {
+      return date.toLocaleDateString("es-ES", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC"
+      })
+    }
+    
     return date.toLocaleDateString("es-ES", {
       day: "numeric",
       month: "short",
@@ -387,7 +423,7 @@ export function EventManager() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <p>{formatDate(event.start_date)}</p>
+                        <p>{formatDate(event.start_date, event.all_day)}</p>
                         {!event.all_day && (
                           <p className="text-muted-foreground flex items-center gap-1">
                             <Clock className="h-3 w-3" />

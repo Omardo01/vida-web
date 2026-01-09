@@ -47,8 +47,19 @@ const eventTypeLabels: Record<string, string> = {
   conferencia: "Conferencia",
 }
 
-function formatDate(dateString: string) {
+function formatDate(dateString: string, allDay: boolean = false) {
   const date = new Date(dateString)
+  
+  if (allDay) {
+    return date.toLocaleDateString("es-ES", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    })
+  }
+
   return date.toLocaleDateString("es-ES", {
     weekday: "long",
     day: "numeric",
@@ -65,8 +76,17 @@ function formatTime(dateString: string) {
   })
 }
 
-function formatShortDate(dateString: string) {
+function formatShortDate(dateString: string, allDay: boolean = false) {
   const date = new Date(dateString)
+  
+  if (allDay) {
+    return {
+      day: parseInt(dateString.split("T")[0].split("-")[2]),
+      month: date.toLocaleDateString("es-ES", { month: "short", timeZone: "UTC" }),
+      weekday: date.toLocaleDateString("es-ES", { weekday: "short", timeZone: "UTC" }),
+    }
+  }
+
   return {
     day: date.getDate(),
     month: date.toLocaleDateString("es-ES", { month: "short" }),
@@ -81,64 +101,45 @@ function EventCard({
   event: CalendarEvent
   onClick: () => void
 }) {
-  const dateInfo = formatShortDate(event.start_date)
-
   return (
     <Card
-      className={`hover:shadow-md transition-all cursor-pointer ${
+      className={`hover:shadow-md transition-all cursor-pointer border-l-4 ${
         event.is_cancelled ? "opacity-60" : ""
       }`}
+      style={{ borderLeftColor: event.color }}
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          <div
-            className="flex flex-col items-center justify-center w-14 h-14 rounded-lg text-white flex-shrink-0"
-            style={{ backgroundColor: event.color }}
-          >
-            <span className="text-xl font-bold">{dateInfo.day}</span>
-            <span className="text-xs uppercase">{dateInfo.month}</span>
+      <CardContent className="p-2 md:p-3">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-2">
+            <h3
+              className={`font-semibold text-sm md:text-base truncate ${
+                event.is_cancelled ? "line-through" : ""
+              }`}
+            >
+              {event.title}
+            </h3>
+            <Badge
+              variant="outline"
+              className="text-[10px] h-4 px-1 shrink-0"
+              style={{ borderColor: event.color, color: event.color }}
+            >
+              {eventTypeLabels[event.event_type] || event.event_type}
+            </Badge>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h3
-                  className={`font-semibold truncate ${
-                    event.is_cancelled ? "line-through" : ""
-                  }`}
-                >
-                  {event.title}
-                </h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge
-                    variant="outline"
-                    className="text-xs"
-                    style={{ borderColor: event.color, color: event.color }}
-                  >
-                    {eventTypeLabels[event.event_type] || event.event_type}
-                  </Badge>
-                  {event.is_cancelled && (
-                    <Badge variant="destructive" className="text-xs">
-                      Cancelado
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
-              {!event.all_day && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {formatTime(event.start_date)}
-                </span>
-              )}
-              {event.location && (
-                <span className="flex items-center gap-1 truncate">
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{event.location}</span>
-                </span>
-              )}
-            </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] md:text-xs text-muted-foreground">
+            {!event.all_day && (
+              <span className="flex items-center gap-1 shrink-0">
+                <Clock className="h-3 w-3" />
+                {formatTime(event.start_date)}
+              </span>
+            )}
+            {event.location && (
+              <span className="flex items-center gap-1 truncate max-w-full">
+                <MapPin className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{event.location}</span>
+              </span>
+            )}
           </div>
         </div>
       </CardContent>
@@ -194,7 +195,7 @@ function EventDetailDialog({
           <div className="flex items-start gap-3">
             <CalendarDays className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
-              <p className="font-medium">{formatDate(event.start_date)}</p>
+              <p className="font-medium">{formatDate(event.start_date, event.all_day)}</p>
               {!event.all_day && (
                 <p className="text-sm text-muted-foreground">
                   {formatTime(event.start_date)}
@@ -301,7 +302,16 @@ export default function CalendarioPage() {
     const grouped: Record<string, CalendarEvent[]> = {}
 
     events.forEach((event) => {
-      const dateKey = new Date(event.start_date).toISOString().split("T")[0]
+      let dateKey: string
+      if (event.all_day) {
+        // Para todo el día usamos la fecha UTC directamente
+        dateKey = event.start_date.split("T")[0]
+      } else {
+        // Para eventos con hora usamos la fecha local
+        const date = new Date(event.start_date)
+        dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      }
+
       if (!grouped[dateKey]) {
         grouped[dateKey] = []
       }
@@ -312,9 +322,19 @@ export default function CalendarioPage() {
   }
 
   // Filtrar eventos próximos (desde hoy)
-  const upcomingEvents = events.filter(
-    (event) => new Date(event.start_date) >= new Date(new Date().setHours(0, 0, 0, 0))
-  )
+  const upcomingEvents = events.filter((event) => {
+    const eventDate = new Date(event.start_date)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    // Si es todo el día, comparamos con la fecha UTC
+    if (event.all_day) {
+      const utcEventDate = new Date(event.start_date.split("T")[0] + "T00:00:00")
+      return utcEventDate >= today
+    }
+    
+    return eventDate >= today
+  })
 
   const groupedEvents = groupEventsByDate(upcomingEvents)
   const sortedDates = Object.keys(groupedEvents).sort()
@@ -325,34 +345,33 @@ export default function CalendarioPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-3 md:p-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Calendario</h1>
-          <p className="text-muted-foreground">
-            Visualiza los próximos eventos y actividades
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-primary/10 p-2 text-primary shrink-0">
+            <Calendar className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight capitalize">{monthName}</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Eventos y actividades programadas
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToToday}>
+          <Button variant="outline" size="sm" onClick={goToToday} className="h-8">
             Hoy
           </Button>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
+            <Button variant="outline" size="icon" onClick={goToPreviousMonth} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={goToNextMonth}>
+            <Button variant="outline" size="icon" onClick={goToNextMonth} className="h-8 w-8">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      </div>
-
-      {/* Mes actual */}
-      <div className="flex items-center gap-2">
-        <Calendar className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-semibold capitalize">{monthName}</h2>
       </div>
 
       {/* Contenido */}
@@ -385,42 +404,37 @@ export default function CalendarioPage() {
           </p>
         </Card>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {sortedDates.map((dateKey) => {
             const dayEvents = groupedEvents[dateKey]
-            const date = new Date(dateKey)
+            const date = new Date(dateKey + "T00:00:00") // Asegurar fecha correcta local
             const isToday =
               date.toDateString() === new Date().toDateString()
             const isTomorrow =
               date.toDateString() ===
               new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString()
 
-            let dateLabel = date.toLocaleDateString("es-ES", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })
-
-            if (isToday) dateLabel = "Hoy"
-            if (isTomorrow) dateLabel = "Mañana"
+            const dateInfo = formatShortDate(dateKey + "T00:00:00", true)
 
             return (
-              <div key={dateKey} className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <h3
-                    className={`text-sm font-medium capitalize ${
-                      isToday ? "text-primary" : "text-muted-foreground"
-                    }`}
-                  >
-                    {dateLabel}
-                  </h3>
-                  {isToday && (
-                    <Badge variant="default" className="text-xs">
-                      Hoy
-                    </Badge>
-                  )}
+              <div key={dateKey} className="flex flex-col md:flex-row gap-3 md:gap-6 pb-6 border-b last:border-0 border-muted/30">
+                {/* Columna Fecha */}
+                <div className="flex md:flex-col items-center md:items-start gap-2 md:gap-0.5 min-w-[80px] shrink-0">
+                  <span className={`text-3xl md:text-4xl font-bold leading-none ${isToday ? "text-primary" : "text-muted-foreground/40"}`}>
+                    {dateInfo.day}
+                  </span>
+                  <div className="flex flex-col md:mt-0.5">
+                    <span className="text-[10px] md:text-xs font-bold uppercase text-muted-foreground/60 leading-none">
+                      {dateInfo.month}
+                    </span>
+                    <span className={`text-[10px] md:text-xs font-medium capitalize ${isToday ? "text-primary font-bold" : "text-muted-foreground/40"}`}>
+                      {isToday ? "Hoy" : isTomorrow ? "Mañana" : dateInfo.weekday}
+                    </span>
+                  </div>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                
+                {/* Columna Eventos (Stack a la derecha) */}
+                <div className="flex-1 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {dayEvents.map((event) => (
                     <EventCard
                       key={event.id}
@@ -437,22 +451,19 @@ export default function CalendarioPage() {
 
       {/* Estadísticas rápidas */}
       {upcomingEvents.length > 0 && (
-        <Card className="mt-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Resumen</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="mt-4 border-muted/20 bg-muted/5">
+          <CardContent className="p-3">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-xl md:text-2xl font-bold text-primary leading-none">
                   {upcomingEvents.length}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                   Eventos próximos
                 </p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-xl md:text-2xl font-bold text-primary leading-none">
                   {
                     upcomingEvents.filter(
                       (e) =>
@@ -461,10 +472,10 @@ export default function CalendarioPage() {
                     ).length
                   }
                 </p>
-                <p className="text-sm text-muted-foreground">Hoy</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Hoy</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-xl md:text-2xl font-bold text-primary leading-none">
                   {
                     upcomingEvents.filter(
                       (e) =>
@@ -473,14 +484,14 @@ export default function CalendarioPage() {
                     ).length
                   }
                 </p>
-                <p className="text-sm text-muted-foreground">Esta semana</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Esta semana</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-xl md:text-2xl font-bold text-primary leading-none">
                   {new Set(upcomingEvents.map((e) => e.event_type)).size}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  Tipos de evento
+                <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
+                  Categorías
                 </p>
               </div>
             </div>

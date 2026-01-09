@@ -81,7 +81,7 @@ const mainMenuItems = [
 
 const managementMenuItems = [
   {
-    title: "Gestión",
+    title: "Gestión (futuro)",
     url: "/dashboard/gestion",
     icon: Users,
     roles: ["admin", "pastor", "lider"],
@@ -92,7 +92,7 @@ const managementMenuItems = [
     ],
   },
   {
-    title: "Reportes",
+    title: "Reportes (futuro)",
     url: "/dashboard/reportes",
     icon: FileBarChart,
     roles: ["admin", "pastor", "lider"],
@@ -103,7 +103,7 @@ const managementMenuItems = [
     ],
   },
   {
-    title: "Cursos",
+    title: "Cursos (futuro)",
     url: "/dashboard/cursos",
     icon: BookOpen,
     roles: ["admin", "pastor", "lider", "curso"],
@@ -135,20 +135,19 @@ function NavItem({ item, userRoles }: NavItemProps) {
 
   if (item.subItems) {
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="group/collapsible">
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton
               isActive={isActive}
-              className="w-full justify-between"
+              tooltip={item.title}
+              size="lg"
             >
-              <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </div>
+              <Icon />
+              <span>{item.title}</span>
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 transition-transform duration-200",
+                  "ml-auto h-4 w-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden",
                   isOpen && "rotate-180"
                 )}
               />
@@ -181,9 +180,9 @@ function NavItem({ item, userRoles }: NavItemProps) {
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive}>
+      <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} size="lg">
         <Link href={item.url}>
-          <Icon className="h-4 w-4" />
+          <Icon />
           <span>{item.title}</span>
         </Link>
       </SidebarMenuButton>
@@ -203,15 +202,15 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r">
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader className="h-16 border-b border-sidebar-border p-0 px-2 flex flex-col justify-center">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <SidebarMenuButton size="lg" asChild tooltip="Inicio">
+              <Link href="/" className="flex items-center justify-center">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shrink-0 transition-all">
                   <Home className="size-4" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
                   <span className="truncate font-semibold">VIDA SC</span>
                   <span className="truncate text-xs text-muted-foreground">
                     Panel de Usuario
@@ -242,8 +241,8 @@ export function DashboardSidebar() {
 
         {/* Menú de Gestión (solo para roles con permisos) */}
         {hasManagementRole && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Gestión</SidebarGroupLabel>
+          <SidebarGroup className="opacity-50 grayscale-[0.5] pointer-events-none select-none">
+            <SidebarGroupLabel>Gestión (Próximamente)</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {managementMenuItems.map((item) => (
@@ -259,16 +258,16 @@ export function DashboardSidebar() {
         )}
 
         {/* Notificaciones */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Notificaciones</SidebarGroupLabel>
+        <SidebarGroup className="opacity-50 grayscale-[0.5] pointer-events-none select-none">
+          <SidebarGroupLabel>Notificaciones (Próximamente)</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild tooltip="Notificaciones">
                   <Link href="/dashboard/notificaciones">
-                    <Bell className="h-4 w-4" />
+                    <Bell />
                     <span>Notificaciones</span>
-                    <Badge variant="secondary" className="ml-auto">
+                    <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">
                       3
                     </Badge>
                   </Link>
@@ -279,7 +278,7 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
+      <SidebarFooter className="h-16 border-t border-sidebar-border p-0 px-2 flex flex-col justify-center">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -288,16 +287,18 @@ export function DashboardSidebar() {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage
-                      src="/placeholder-user.jpg"
-                      alt={user?.email || "Usuario"}
-                    />
-                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                      {user?.email ? getInitials(user.email) : "US"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="flex aspect-square size-8 items-center justify-center shrink-0">
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarImage
+                        src="/placeholder-user.jpg"
+                        alt={user?.email || "Usuario"}
+                      />
+                      <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                        {user?.email ? getInitials(user.email) : "US"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden ml-2">
                     <span className="truncate font-semibold">
                       {user?.email?.split("@")[0] || "Usuario"}
                     </span>
@@ -315,7 +316,7 @@ export function DashboardSidebar() {
                       )}
                     </span>
                   </div>
-                  <ChevronDown className="ml-auto size-4" />
+                  <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent

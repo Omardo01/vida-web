@@ -69,7 +69,7 @@ export function BlogSection() {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await fetch('/api/blog?limit=6')
+        const response = await fetch('/api/blog?limit=3')
         if (response.ok) {
           const { posts: fetchedPosts } = await response.json()
           setPosts(fetchedPosts || [])
@@ -109,7 +109,7 @@ export function BlogSection() {
             <Skeleton className="h-6 w-96 mx-auto" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(3)].map((_, i) => (
               <Card key={i} className="overflow-hidden">
                 <Skeleton className="aspect-[4/3] w-full" />
                 <div className="p-4 md:p-6 space-y-3">
@@ -187,99 +187,96 @@ export function BlogSection() {
 
         {/* Grid de posts - Estilo tarjeta con icono */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-10 md:mb-12">
-          {posts.map((post) => {
+          {posts.slice(0, 3).map((post) => {
             const CategoryIcon = getIconComponent(post.categoria?.icono)
             const categoryColor = post.categoria?.color || "#3B82F6"
 
             return (
-              <Card 
-                key={post.id} 
-                className="group relative overflow-hidden hover:shadow-xl transition-all duration-500 border-0 bg-card"
-              >
-                {/* Header con icono de categoría - Estilo similar a la imagen */}
-                <div 
-                  className="relative aspect-[4/3] overflow-hidden"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${categoryColor}15 0%, ${categoryColor}05 100%)` 
-                  }}
+              <Link key={post.id} href={`/blog/${post.slug}`}>
+                <Card 
+                  className="group h-full relative overflow-hidden hover:shadow-xl transition-all duration-500 border-0 bg-card cursor-pointer"
                 >
-                  {/* Patrón decorativo de fondo */}
-                  <div className="absolute inset-0 opacity-[0.03]">
-                    <div 
-                      className="absolute inset-0"
-                      style={{
-                        backgroundImage: `radial-gradient(${categoryColor} 1px, transparent 1px)`,
-                        backgroundSize: '20px 20px'
-                      }}
-                    />
-                  </div>
-                  
-                  {/* Icono central grande */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div 
-                      className="p-6 rounded-2xl transition-transform duration-500 group-hover:scale-110"
-                      style={{ backgroundColor: categoryColor + "20" }}
-                    >
-                      <CategoryIcon 
-                        className="h-16 w-16 md:h-20 md:w-20 transition-all duration-500" 
-                        style={{ color: categoryColor }}
-                        strokeWidth={1.5}
+                  {/* Header con icono de categoría - Estilo similar a la imagen */}
+                  <div 
+                    className="relative aspect-[4/3] overflow-hidden"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${categoryColor}15 0%, ${categoryColor}05 100%)` 
+                    }}
+                  >
+                    {/* Patrón decorativo de fondo */}
+                    <div className="absolute inset-0 opacity-[0.03]">
+                      <div 
+                        className="absolute inset-0"
+                        style={{
+                          backgroundImage: `radial-gradient(${categoryColor} 1px, transparent 1px)`,
+                          backgroundSize: '20px 20px'
+                        }}
                       />
                     </div>
-                  </div>
-
-                  {/* Badge de categoría en esquina */}
-                  {post.categoria && (
-                    <div className="absolute top-4 left-4">
-                      <Badge 
-                        variant="secondary"
-                        className="backdrop-blur-sm font-medium shadow-sm"
-                        style={{
-                          backgroundColor: categoryColor + "90",
-                          color: "white",
-                        }}
+                    
+                    {/* Icono central grande */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div 
+                        className="p-6 rounded-2xl transition-transform duration-500 group-hover:scale-110"
+                        style={{ backgroundColor: categoryColor + "20" }}
                       >
-                        {post.categoria.nombre}
-                      </Badge>
+                        <CategoryIcon 
+                          className="h-16 w-16 md:h-20 md:w-20 transition-all duration-500" 
+                          style={{ color: categoryColor }}
+                          strokeWidth={1.5}
+                        />
+                      </div>
                     </div>
-                  )}
 
-                  {/* Botón de flecha - Estilo de la imagen */}
-                  <div className="absolute bottom-4 right-4">
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="rounded-full h-10 w-10 bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
+                    {/* Badge de categoría en esquina */}
+                    {post.categoria && (
+                      <div className="absolute top-4 left-4">
+                        <Badge 
+                          variant="secondary"
+                          className="backdrop-blur-sm font-medium shadow-sm"
+                          style={{
+                            backgroundColor: categoryColor + "90",
+                            color: "white",
+                          }}
+                        >
+                          {post.categoria.nombre}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* Botón de flecha - Estilo de la imagen */}
+                    <div className="absolute bottom-4 right-4">
+                      <div
+                        className="flex items-center justify-center rounded-full h-10 w-10 bg-white/90 group-hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
+                      >
+                        <ArrowRight className="h-4 w-4 text-primary" />
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {/* Contenido */}
-                <CardContent className="p-5 md:p-6 space-y-3">
-                  <h3 className="text-lg md:text-xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                    {post.titulo}
-                  </h3>
-                  
-                  <p className="text-sm md:text-base text-muted-foreground line-clamp-2 leading-relaxed">
-                    {post.resumen}
-                  </p>
+                  {/* Contenido */}
+                  <CardContent className="p-5 md:p-6 space-y-3">
+                    <h3 className="text-lg md:text-xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                      {post.titulo}
+                    </h3>
+                    
+                    <p className="text-sm md:text-base text-muted-foreground line-clamp-2 leading-relaxed">
+                      {post.resumen}
+                    </p>
 
-                  {/* Footer con fecha */}
-                  <div className="pt-2 flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{formatDate(post.fecha_publicacion || post.created_at)}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-primary hover:text-primary-foreground hover:bg-primary gap-1 -mr-2"
-                    >
-                      Leer más
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    {/* Footer con fecha */}
+                    <div className="pt-2 flex items-center justify-between text-sm text-muted-foreground">
+                      <span>{formatDate(post.fecha_publicacion || post.created_at)}</span>
+                      <div
+                        className="text-primary font-medium flex items-center gap-1 group-hover:underline decoration-2 underline-offset-4"
+                      >
+                        Leer más
+                        <ExternalLink className="h-3 w-3" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             )
           })}
         </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { useUserRoles } from "@/hooks/use-user-roles"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
@@ -75,6 +75,19 @@ export default function DashboardLayout({
   const { user, loading: authLoading } = useAuth()
   const { hasDashboardAccess, loading: rolesLoading } = useUserRoles()
   const router = useRouter()
+  const pathname = usePathname()
+
+  const getPageTitle = () => {
+    if (pathname === "/dashboard") return "Inicio"
+    if (pathname.includes("/archivos")) return "Archivos"
+    if (pathname.includes("/calendario")) return "Calendario"
+    if (pathname.includes("/gestion")) return "Gestión"
+    if (pathname.includes("/reportes")) return "Reportes"
+    if (pathname.includes("/cursos")) return "Cursos"
+    if (pathname.includes("/notificaciones")) return "Notificaciones"
+    if (pathname.includes("/configuracion")) return "Configuración"
+    return "Dashboard"
+  }
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -106,8 +119,8 @@ export default function DashboardLayout({
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              <BreadcrumbItem>
+                <BreadcrumbPage>{getPageTitle()}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
