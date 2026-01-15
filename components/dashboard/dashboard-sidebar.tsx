@@ -65,11 +65,6 @@ const mainMenuItems = [
     url: "/dashboard/archivos",
     icon: FolderOpen,
     roles: ["admin", "pastor", "lider", "celula", "curso", "usuario"],
-    subItems: [
-      { title: "Mis Documentos", url: "/dashboard/archivos/documentos" },
-      { title: "Compartidos Conmigo", url: "/dashboard/archivos/compartidos" },
-      { title: "Recursos", url: "/dashboard/archivos/recursos" },
-    ],
   },
   {
     title: "Calendario",

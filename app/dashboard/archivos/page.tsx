@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -15,343 +15,316 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  FolderOpen,
   FileText,
-  FileImage,
-  FileVideo,
-  FilePlus,
-  Upload,
   Search,
-  MoreVertical,
-  Download,
-  Trash2,
-  Share2,
-  Eye,
+  ExternalLink,
   Grid,
   List,
-  Filter,
-  FolderPlus,
+  MoreHorizontal,
+  Calendar,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-// Datos de ejemplo
-const mockFiles = [
-  {
-    id: "1",
-    name: "Guía de Estudio - Romanos",
-    type: "document",
-    size: "2.4 MB",
-    modified: "2024-12-10",
-    shared: false,
-  },
-  {
-    id: "2",
-    name: "Notas de la reunión",
-    type: "document",
-    size: "156 KB",
-    modified: "2024-12-08",
-    shared: true,
-  },
-  {
-    id: "3",
-    name: "Foto del evento",
-    type: "image",
-    size: "4.2 MB",
-    modified: "2024-12-05",
-    shared: false,
-  },
-  {
-    id: "4",
-    name: "Video testimonio",
-    type: "video",
-    size: "45 MB",
-    modified: "2024-12-01",
-    shared: true,
-  },
-  {
-    id: "5",
-    name: "Planificación mensual",
-    type: "document",
-    size: "890 KB",
-    modified: "2024-11-28",
-    shared: false,
-  },
-]
-
-const mockFolders = [
-  { id: "1", name: "Estudios Bíblicos", items: 12 },
-  { id: "2", name: "Recursos de Liderazgo", items: 8 },
-  { id: "3", name: "Materiales de Célula", items: 15 },
-  { id: "4", name: "Documentos Personales", items: 5 },
-]
-
-function getFileIcon(type: string) {
-  switch (type) {
-    case "document":
-      return FileText
-    case "image":
-      return FileImage
-    case "video":
-      return FileVideo
-    default:
-      return FileText
-  }
+interface Role {
+  id: string
+  name: string
+  display_name: string
+  color: string
 }
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
+interface Archivo {
+  id: string
+  nombre: string
+  url: string
+  descripcion: string
+  created_at: string
+  archivo_roles: {
+    role_id: string
+    roles: Role
+  }[]
 }
 
 export default function ArchivosPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedRole, setSelectedRole] = useState<string | null>(null)
+  const [archivos, setArchivos] = useState<Archivo[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredFiles = mockFiles.filter((file) =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  useEffect(() => {
+    async function fetchArchivos() {
+      try {
+        const response = await fetch('/api/archivos')
+        if (response.ok) {
+          const { archivos } = await response.json()
+          setArchivos(archivos || [])
+        }
+      } catch (error) {
+        console.error('Error fetching archivos:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchArchivos()
+  }, [])
+
+  // Obtener todos los roles únicos de los archivos disponibles
+  const availableRoles = useMemo(() => {
+    const rolesMap = new Map<string, Role>()
+    archivos.forEach(file => {
+      file.archivo_roles?.forEach(ar => {
+        if (ar.roles) {
+          rolesMap.set(ar.roles.id, ar.roles)
+        }
+      })
+    })
+    return Array.from(rolesMap.values())
+  }, [archivos])
+
+  const filteredFiles = archivos.filter((file) => {
+    const matchesSearch = file.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         file.descripcion?.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    const matchesRole = !selectedRole || file.archivo_roles?.some(ar => ar.role_id === selectedRole)
+    
+    return matchesSearch && matchesRole
+  })
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const formatted = date.toLocaleDateString("es-ES", {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+    // Capitalizar la primera letra (el día de la semana)
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+  }
 
   return (
-    <div className="flex flex-col gap-6 p-3 md:p-6">
+    <div className="flex flex-col gap-6 p-4 md:p-8 bg-muted/20 min-h-full">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Mis Archivos</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Recursos y Archivos</h1>
           <p className="text-sm md:text-base text-muted-foreground">
-            Gestiona tus documentos y recursos personales
+            Materiales y documentos compartidos para tu rol
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2 flex-1 md:flex-none">
-            <FolderPlus className="h-4 w-4" />
-            <span className="hidden sm:inline">Nueva Carpeta</span>
-            <span className="sm:hidden">Carpeta</span>
+      </div>
+
+      {/* Filtros y Búsqueda */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-card p-3 md:p-4 rounded-2xl md:rounded-xl border shadow-sm">
+        <div className="flex flex-col gap-3 w-full md:w-auto">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar..."
+              className="pl-9 h-9 md:h-10 border-muted-foreground/10 text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+            <Button
+              variant={selectedRole === null ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedRole(null)}
+              className="h-7 md:h-9 rounded-full px-3 md:px-4 text-[10px] md:text-xs"
+            >
+              Todos
+            </Button>
+            {availableRoles.map((role) => (
+              <Button
+                key={role.id}
+                variant={selectedRole === role.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedRole(role.id)}
+                className="h-7 md:h-9 rounded-full px-3 md:px-4 border-muted-foreground/10 text-[10px] md:text-xs"
+                style={selectedRole === role.id ? { backgroundColor: role.color } : {}}
+              >
+                {role.display_name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center md:justify-end gap-2 border-t md:border-t-0 md:border-l pt-3 md:pt-0 md:pl-4 border-muted-foreground/10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-9 w-9", viewMode === "grid" && "bg-muted text-primary")}
+            onClick={() => setViewMode("grid")}
+          >
+            <Grid className="h-4 w-4" />
           </Button>
-          <Button className="gap-2 flex-1 md:flex-none">
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline">Subir Archivo</span>
-            <span className="sm:hidden">Subir</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-9 w-9", viewMode === "list" && "bg-muted text-primary")}
+            onClick={() => setViewMode("list")}
+          >
+            <List className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* Tabs de navegación */}
-      <Tabs defaultValue="todos" className="space-y-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <TabsList className="w-full justify-start overflow-x-auto">
-            <TabsTrigger value="todos">Todos</TabsTrigger>
-            <TabsTrigger value="documentos">Documentos</TabsTrigger>
-            <TabsTrigger value="compartidos">Compartidos</TabsTrigger>
-            <TabsTrigger value="recientes">Recientes</TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar archivos..."
-                className="pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-            >
-              {viewMode === "grid" ? (
-                <List className="h-4 w-4" />
-              ) : (
-                <Grid className="h-4 w-4" />
-              )}
-            </Button>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </div>
+      {loading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Skeleton key={i} className="h-[240px] w-full rounded-3xl" />
+          ))}
         </div>
+      ) : (
+        <div className="flex-1">
+          {viewMode === "grid" ? (
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredFiles.length === 0 ? (
+                <div className="col-span-full text-center py-20 bg-card rounded-3xl border border-dashed">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">No se encontraron archivos con los criterios seleccionados</p>
+                </div>
+              ) : (
+                filteredFiles.map((file) => {
+                  // Determinar color de fondo basado en el primer rol
+                  const firstRole = file.archivo_roles?.[0]?.roles
+                  const firstColor = firstRole?.color || '#3b82f6'
 
-        <TabsContent value="todos" className="space-y-4">
-          {/* Carpetas */}
-          <div>
-            <h2 className="text-lg font-semibold mb-3">Carpetas</h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {mockFolders.map((folder) => (
-                <Card
-                  key={folder.id}
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                >
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="rounded-lg bg-primary/10 p-3">
-                      <FolderOpen className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{folder.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {folder.items} elementos
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Archivos */}
-          <div>
-            <h2 className="text-lg font-semibold mb-3">Archivos</h2>
-            {viewMode === "list" ? (
-              <Card>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead className="hidden md:table-cell">Tamaño</TableHead>
-                      <TableHead className="hidden md:table-cell">Modificado</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredFiles.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                          No se encontraron archivos
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredFiles.map((file) => {
-                        const FileIcon = getFileIcon(file.type)
-                        return (
-                          <TableRow key={file.id} className="hover:bg-muted/50">
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-muted p-2">
-                                  <FileIcon className="h-4 w-4 text-muted-foreground" />
-                                </div>
-                                <div>
-                                  <p className="font-medium">{file.name}</p>
-                                  {file.shared && (
-                                    <Badge variant="secondary" className="text-xs mt-1">
-                                      Compartido
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell text-muted-foreground">
-                              {file.size}
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell text-muted-foreground">
-                              {formatDate(file.modified)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Ver
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Descargar
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                    Compartir
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem className="text-destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Eliminar
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {filteredFiles.map((file) => {
-                  const FileIcon = getFileIcon(file.type)
                   return (
-                    <Card
-                      key={file.id}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    <Card 
+                      key={file.id} 
+                      className={cn(
+                        "group relative border-none shadow-sm transition-all hover:shadow-md hover:-translate-y-1 rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-full min-h-[140px] md:min-h-[170px] py-2.5",
+                      )}
+                      style={{ backgroundColor: `${firstColor}10` }}
                     >
-                      <CardContent className="p-4">
-                        <div className="flex flex-col items-center text-center gap-3">
-                          <div className="rounded-lg bg-muted p-4">
-                            <FileIcon className="h-8 w-8 text-muted-foreground" />
+                      <CardHeader className="p-2.5 md:p-4 pb-0 md:pb-0">
+                        <div className="flex items-start justify-between">
+                          <div 
+                            className="rounded-lg md:rounded-xl p-1.5 md:p-2.5 transition-colors"
+                            style={{ backgroundColor: `${firstColor}20` }}
+                          >
+                            <Calendar className="h-4 w-4 md:h-5 md:w-5" style={{ color: firstColor }} />
                           </div>
-                          <div>
-                            <p className="font-medium text-sm truncate w-full">
-                              {file.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {file.size}
-                            </p>
+                          <Button variant="ghost" size="icon" className="rounded-full bg-white/30 backdrop-blur-sm h-7 w-7 md:h-8 md:w-8">
+                            <MoreHorizontal className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-2.5 md:p-4 pt-1 md:pt-1.5 flex flex-col flex-1">
+                        <div className="flex-1">
+                          <h3 className="text-sm md:text-base font-bold text-foreground leading-tight mb-0.5 md:mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                            {file.nombre}
+                          </h3>
+                          <p className="text-[9px] md:text-xs text-muted-foreground font-medium flex items-center gap-1 md:gap-1.5">
+                            {formatDate(file.created_at)}
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-1.5 md:mt-2">
+                          <div className="flex -space-x-1 md:-space-x-1.5 overflow-hidden">
+                            {file.archivo_roles?.map((ar, idx) => (
+                              <div
+                                key={ar.role_id}
+                                className="h-5 w-5 md:h-7 md:w-7 rounded-full border border-white flex items-center justify-center text-[7px] md:text-[9px] font-bold text-white shadow-sm shrink-0"
+                                title={ar.roles?.display_name}
+                                style={{ backgroundColor: ar.roles?.color, zIndex: 10 - idx }}
+                              >
+                                {ar.roles?.display_name.substring(0, 2).toUpperCase()}
+                              </div>
+                            ))}
                           </div>
+                          <Button 
+                            asChild 
+                            size="sm" 
+                            className="rounded-full h-6 md:h-8 px-2.5 md:px-3 text-[9px] md:text-xs font-semibold transition-all shadow-sm"
+                            style={{ backgroundColor: firstColor }}
+                          >
+                            <a href={file.url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1 md:mr-1.5" />
+                              Abrir
+                            </a>
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
                   )
-                })}
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="documentos">
-          <Card className="flex flex-col items-center justify-center p-12">
-            <FileText className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Documentos</h3>
-            <p className="text-muted-foreground text-center max-w-md">
-              Aquí encontrarás todos tus documentos de texto, PDFs y presentaciones.
-            </p>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="compartidos">
-          <Card className="flex flex-col items-center justify-center p-12">
-            <Share2 className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Archivos Compartidos</h3>
-            <p className="text-muted-foreground text-center max-w-md">
-              Visualiza los archivos que han sido compartidos contigo por otros miembros.
-            </p>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="recientes">
-          <Card className="flex flex-col items-center justify-center p-12">
-            <FolderOpen className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Archivos Recientes</h3>
-            <p className="text-muted-foreground text-center max-w-md">
-              Accede rápidamente a los archivos que has utilizado recientemente.
-            </p>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                })
+              )}
+            </div>
+          ) : (
+            <Card className="rounded-3xl overflow-hidden border-none shadow-sm">
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead className="py-4 pl-6">Nombre y Descripción</TableHead>
+                    <TableHead>Roles</TableHead>
+                    <TableHead className="hidden md:table-cell">Fecha</TableHead>
+                    <TableHead className="text-right pr-6">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredFiles.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-20 text-muted-foreground">
+                        No se encontraron archivos
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredFiles.map((file) => (
+                      <TableRow key={file.id} className="hover:bg-muted/30 group">
+                        <TableCell className="py-4 pl-6">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-bold text-foreground group-hover:text-primary transition-colors">
+                              {file.nombre}
+                            </span>
+                            {file.descripcion && (
+                              <span className="text-sm text-muted-foreground line-clamp-1">
+                                {file.descripcion}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {file.archivo_roles?.map((ar) => (
+                              <Badge
+                                key={ar.role_id}
+                                variant="secondary"
+                                className="text-[10px] font-bold uppercase"
+                                style={{
+                                  backgroundColor: `${ar.roles?.color}15`,
+                                  color: ar.roles?.color,
+                                  borderColor: `${ar.roles?.color}30`,
+                                }}
+                              >
+                                {ar.roles?.display_name}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground font-medium">
+                          {new Date(file.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right pr-6">
+                          <Button variant="ghost" size="sm" asChild className="rounded-full px-4 group-hover:bg-primary group-hover:text-white transition-all">
+                            <a href={file.url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              <span>Abrir recurso</span>
+                            </a>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   )
 }

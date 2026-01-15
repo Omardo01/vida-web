@@ -22,6 +22,7 @@ import { UserRoleAssignment } from "@/components/admin/user-role-assignment"
 import { BlogManager } from "@/components/admin/blog-manager"
 import { EventManager } from "@/components/admin/event-manager"
 import { DelegacionManager } from "@/components/admin/delegacion-manager"
+import { ArchivoManager } from "@/components/admin/archivo-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface UserRole {
@@ -242,8 +243,12 @@ export default function AdminPage() {
           <div className="space-y-6">
             {/* Tabs para diferentes secciones */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full max-w-3xl grid-cols-5">
+              <TabsList className="grid w-full max-w-4xl grid-cols-6">
                 <TabsTrigger value="overview">Resumen</TabsTrigger>
+                <TabsTrigger value="archivos" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Archivos
+                </TabsTrigger>
                 <TabsTrigger value="delegaciones" className="gap-2">
                   <MapPin className="h-4 w-4" />
                   Delegaciones
@@ -399,6 +404,10 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+              </TabsContent>
+
+              <TabsContent value="archivos">
+                <ArchivoManager />
               </TabsContent>
 
               <TabsContent value="delegaciones">

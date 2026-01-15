@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useUserRoles } from "@/hooks/use-user-roles"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -161,6 +162,73 @@ function QuickAccessCard({
 export default function DashboardPage() {
   const { user } = useAuth()
   const { roles, primaryRole, hasManagementRole, isAdmin, isPastor, isLider } = useUserRoles()
+  const [fileCount, setFileCount] = useState<number | null>(null)
+  const [eventCount, setEventCount] = useState<number | null>(null)
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const [filesRes, eventsRes] = await Promise.all([
+          fetch('/api/archivos'),
+          fetch('/api/events')
+        ])
+
+        let filesData = []
+        let eventsData = []
+
+        if (filesRes.ok) {
+          const data = await filesRes.json()
+          filesData = data.archivos || []
+          setFileCount(filesData.length)
+        }
+
+        if (eventsRes.ok) {
+          const data = await eventsRes.json()
+          eventsData = data.events || []
+          setEventCount(eventsData.length)
+        }
+
+        // Combinar y ordenar actividad reciente
+        const activities = [
+          ...filesData.map((f: any) => ({
+            id: f.id,
+            title: "Nuevo archivo disponible",
+            description: f.nombre,
+            time: f.created_at,
+            type: "file",
+            icon: FileText,
+            status: "info"
+          })),
+          ...eventsData.map((e: any) => ({
+            id: e.id,
+            title: "Evento programado",
+            description: e.title,
+            time: e.start_date,
+            type: "event",
+            icon: Calendar,
+            status: "warning"
+          }))
+        ]
+
+        // Ordenar por fecha descendente y tomar los últimos 10
+        const sortedActivities = activities
+          .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+          .slice(0, 10)
+
+        setRecentActivity(sortedActivities)
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (user) {
+      fetchDashboardData()
+    }
+  }, [user])
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -172,6 +240,19 @@ export default function DashboardPage() {
   const getUserName = () => {
     if (!user?.email) return "Usuario"
     return user.email.split("@")[0]
+  }
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMs = now.getTime() - date.getTime()
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+    const diffInDays = Math.floor(diffInHours / 24)
+
+    if (diffInHours < 1) return "Recién"
+    if (diffInHours < 24) return `${diffInHours}h`
+    if (diffInDays === 1) return "Ayer"
+    return `${diffInDays}d`
   }
 
   return (
@@ -200,33 +281,19 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Tarjetas de estadísticas - 2x2 para mantener el equilibrio visual */}
-          <div className="grid gap-2 md:gap-3 grid-cols-2 lg:max-w-2xl shrink-0 pr-1">
+          {/* Tarjetas de estadísticas - Solo 2 cards como solicitado */}
+          <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:max-w-3xl shrink-0 pr-1">
             <StatCard
-              title="Archivos (trabajando)"
-              value="--"
-              description="En desarrollo"
+              title="Archivos Disponibles"
+              value={fileCount !== null ? fileCount : "--"}
+              description={fileCount !== null ? `${fileCount} recursos para tu rol` : "Cargando..."}
               icon={FolderOpen}
               color="primary"
             />
             <StatCard
-              title="Archivos (trabajando)"
-              value="--"
-              description="En desarrollo"
-              icon={FolderOpen}
-              color="primary"
-            />
-            <StatCard
-              title="Calendario (trabajando)"
-              value="--"
-              description="En desarrollo"
-              icon={Calendar}
-              color="accent"
-            />
-            <StatCard
-              title="Calendario (trabajando)"
-              value="--"
-              description="En desarrollo"
+              title="Próximos Eventos"
+              value={eventCount !== null ? eventCount : "--"}
+              description={eventCount !== null ? `${eventCount} eventos en tu calendario` : "Cargando..."}
               icon={Calendar}
               color="accent"
             />
@@ -238,7 +305,7 @@ export default function DashboardPage() {
             <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
               <QuickAccessCard
                 title="Mis Archivos"
-                description="Documentos personales"
+                description="Documentos y recursos"
                 icon={FolderOpen}
                 href="/dashboard/archivos"
               />
@@ -247,52 +314,44 @@ export default function DashboardPage() {
                 description="Eventos próximos"
                 icon={Calendar}
                 href="/dashboard/calendario"
-                badge="3 eventos"
+                badge={eventCount ? `${eventCount} eventos` : undefined}
               />
             </div>
           </div>
         </div>
 
-        {/* Columna Derecha: Actividad Reciente - Ocupa todo el lateral */}
+        {/* Columna Derecha: Actividad Reciente - Historial real */}
         <div className="flex flex-col gap-3 md:gap-4 lg:h-full">
           <h2 className="text-base md:text-lg font-semibold shrink-0">Actividad Reciente</h2>
           <Card className="lg:flex-1 lg:overflow-hidden flex flex-col border-muted/20">
             <CardContent className="p-2 md:p-3 lg:overflow-y-auto custom-scrollbar">
               <div className="space-y-1">
-                <ActivityItem
-                  title="Documento compartido"
-                  description="Se compartió 'Guía de estudio'"
-                  time="2h"
-                  icon={FileText}
-                  status="info"
-                />
-                <ActivityItem
-                  title="Evento próximo"
-                  description="Reunión de líderes mañana"
-                  time="5h"
-                  icon={Calendar}
-                  status="warning"
-                />
-                <ActivityItem
-                  title="Tarea completada"
-                  description="Has completado 'Revisar material'"
-                  time="Ayer"
-                  icon={CheckCircle2}
-                  status="success"
-                />
-                <ActivityItem
-                  title="Nueva notificación"
-                  description="Nuevo mensaje del pastor"
-                  time="2d"
-                  icon={Bell}
-                />
-                <ActivityItem
-                  title="Sistema actualizado"
-                  description="Errores de fechas corregidos"
-                  time="3d"
-                  icon={AlertCircle}
-                  status="info"
-                />
+                {loading ? (
+                  [...Array(5)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3">
+                      <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 w-24 bg-muted animate-pulse rounded" />
+                        <div className="h-2 w-32 bg-muted animate-pulse rounded" />
+                      </div>
+                    </div>
+                  ))
+                ) : recentActivity.length === 0 ? (
+                  <p className="text-center py-10 text-sm text-muted-foreground">
+                    No hay actividad reciente
+                  </p>
+                ) : (
+                  recentActivity.map((activity) => (
+                    <ActivityItem
+                      key={`${activity.type}-${activity.id}`}
+                      title={activity.title}
+                      description={activity.description}
+                      time={formatRelativeTime(activity.time)}
+                      icon={activity.icon}
+                      status={activity.status}
+                    />
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
